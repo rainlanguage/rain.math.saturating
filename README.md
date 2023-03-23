@@ -11,3 +11,5 @@ Ideally there are no calculation mistakes, but in guarding against bugs it may b
 safer pragmatically to saturate arithmatic at the numeric bounds.
 
 Note that saturating div is not supported because 0/0 is undefined.
+
+Docs at https://rainprotocol.github.io/rain.math.saturating/
