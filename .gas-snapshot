@@ -1,0 +1,7 @@
+SaturatingMathTest:testAZeroMul(uint256) (runs: 1024, μ: 405, ~: 405)
+SaturatingMathTest:testNotOverflowAdd(uint256,uint256) (runs: 1024, μ: 3409, ~: 3409)
+SaturatingMathTest:testNotOverflowMul(uint256,uint256) (runs: 1024, μ: 3833, ~: 3833)
+SaturatingMathTest:testNotUnderflowSub(uint256,uint256) (runs: 1024, μ: 3413, ~: 3413)
+SaturatingMathTest:testSaturateAdd(uint256,uint256) (runs: 1024, μ: 3275, ~: 3275)
+SaturatingMathTest:testSaturateMul(uint256,uint256) (runs: 1024, μ: 3754, ~: 3754)
+SaturatingMathTest:testSaturateSub(uint256,uint256) (runs: 1024, μ: 3291, ~: 3291)
