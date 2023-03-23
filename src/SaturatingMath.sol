@@ -1,5 +1,3 @@
-
-
 // SPDX-License-Identifier: CAL
 pragma solidity ^0.8.0;
 
