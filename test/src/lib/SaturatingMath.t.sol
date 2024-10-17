@@ -6,7 +6,7 @@ import {Test} from "forge-std/Test.sol";
 import {LibSaturatingMath} from "src/lib/LibSaturatingMath.sol";
 
 contract SaturatingMathTest is Test {
-    function testNotOverflowAdd(uint256 a, uint256 b) public {
+    function testNotOverflowAdd(uint256 a, uint256 b) public pure {
         unchecked {
             uint256 c = a + b;
             vm.assume(c >= a);
@@ -15,7 +15,7 @@ contract SaturatingMathTest is Test {
         assertEq(a + b, LibSaturatingMath.saturatingAdd(a, b));
     }
 
-    function testSaturateAdd(uint256 a, uint256 b) public {
+    function testSaturateAdd(uint256 a, uint256 b) public pure {
         unchecked {
             uint256 c = a + b;
             vm.assume(c < a);
@@ -24,7 +24,7 @@ contract SaturatingMathTest is Test {
         assertEq(type(uint256).max, LibSaturatingMath.saturatingAdd(a, b));
     }
 
-    function testNotUnderflowSub(uint256 a, uint256 b) public {
+    function testNotUnderflowSub(uint256 a, uint256 b) public pure {
         unchecked {
             uint256 c = a - b;
             vm.assume(c <= a);
@@ -33,7 +33,7 @@ contract SaturatingMathTest is Test {
         assertEq(a - b, LibSaturatingMath.saturatingSub(a, b));
     }
 
-    function testSaturateSub(uint256 a, uint256 b) public {
+    function testSaturateSub(uint256 a, uint256 b) public pure {
         unchecked {
             uint256 c = a - b;
             vm.assume(c > a);
@@ -42,7 +42,7 @@ contract SaturatingMathTest is Test {
         }
     }
 
-    function testNotOverflowMul(uint256 a, uint256 b) public {
+    function testNotOverflowMul(uint256 a, uint256 b) public pure {
         unchecked {
             uint256 c = a * b;
             vm.assume(a != 0);
@@ -52,7 +52,7 @@ contract SaturatingMathTest is Test {
         assertEq(a * b, LibSaturatingMath.saturatingMul(a, b));
     }
 
-    function testSaturateMul(uint256 a, uint256 b) public {
+    function testSaturateMul(uint256 a, uint256 b) public pure {
         unchecked {
             uint256 c = a * b;
             vm.assume(a != 0);
@@ -62,7 +62,7 @@ contract SaturatingMathTest is Test {
         assertEq(type(uint256).max, LibSaturatingMath.saturatingMul(a, b));
     }
 
-    function testAZeroMul(uint256 b) public {
+    function testAZeroMul(uint256 b) public pure {
         assertEq(0, LibSaturatingMath.saturatingMul(0, b));
     }
 }
