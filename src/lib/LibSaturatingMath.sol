@@ -14,9 +14,11 @@ pragma solidity ^0.8.18;
 /// Note that saturating div is not supported because 0/0 is undefined.
 library LibSaturatingMath {
     /// Saturating addition.
+    /// If the result of `a + b` overflows, the return value is the maximum
+    /// `uint256` value instead. This function does not revert.
     /// @param a First term.
     /// @param b Second term.
-    /// @return Minimum of a + b and max uint256.
+    /// @return Minimum of (a + b) and max uint256.
     function saturatingAdd(uint256 a, uint256 b) internal pure returns (uint256) {
         unchecked {
             uint256 c = a + b;
@@ -25,6 +27,8 @@ library LibSaturatingMath {
     }
 
     /// Saturating subtraction.
+    /// If the result of `a - b` underflows, the return value is 0 instead. This
+    /// function does not revert.
     /// @param a Minuend.
     /// @param b Subtrahend.
     /// @return Maximum of a - b and 0.
@@ -35,6 +39,8 @@ library LibSaturatingMath {
     }
 
     /// Saturating multiplication.
+    /// If the result of `a * b` overflows, the return value is the maximum
+    /// `uint256` value instead. This function does not revert.
     /// @param a First term.
     /// @param b Second term.
     /// @return Minimum of a * b and max uint256.
