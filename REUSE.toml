@@ -4,6 +4,7 @@ version = 1
 path = [
     ".gas-snapshot",
     ".github/workflows/**/",
+    "audit/**/",
     ".gitignore",
     ".gitmodules",
     "README.md",
