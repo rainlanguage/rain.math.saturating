@@ -6,11 +6,14 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, flake-utils, rainix }:
-    flake-utils.lib.eachDefaultSystem (system:
-      {
-        packages = rainix.packages.${system};
-        devShells = rainix.devShells.${system};
-      }
-    );
+  outputs =
+    {
+      flake-utils,
+      rainix,
+      ...
+    }:
+    flake-utils.lib.eachDefaultSystem (system: {
+      packages = rainix.packages.${system};
+      devShells.default = rainix.devShells.${system}.sol-shell;
+    });
 }

@@ -1,2 +1,4 @@
-out
 cache
+dependencies
+out
+.pre-commit-config.yaml
