@@ -16,58 +16,92 @@ contract SaturatingMathTest is Test {
         harness = new SaturatingMathHarness();
     }
 
+    /// A draw spread across magnitudes rather than across the range. A uniform
+    /// `uint256` sits above `2 ** 255` half the time, which for multiplication
+    /// leaves only `0` and `1` as second terms whose product still fits and
+    /// collapses the representable half onto trivial products. Drawing the bit
+    /// width first and the value within that width second reaches every scale
+    /// equally often. `bound` at both steps maps small and near maximal draws
+    /// onto the edges of their ranges, so the narrowest widths — where the
+    /// saturation boundary is sharpest — stay reachable from the values a
+    /// fuzzer proposes most.
+    /// @param width Selects the bit width, from `minBits` to 256.
+    /// @param x Selects the value within that width.
+    /// @param minBits Narrowest bit width to select, at least 1.
+    /// @return A value of exactly the selected bit width.
+    function magnitude(uint256 width, uint256 x, uint256 minBits) internal pure returns (uint256) {
+        uint256 bits = bound(width, minBits, 256);
+        uint256 lo = uint256(1) << (bits - 1);
+        uint256 hi = bits == 256 ? type(uint256).max : (uint256(1) << bits) - 1;
+        return bound(x, lo, hi);
+    }
+
+    /// The representable half of `saturatingAdd`. For any first term the sums
+    /// that fit are exactly the second terms in `[0, max - a]`, so every draw
+    /// lands in the half by construction and none is discarded. The expectation
+    /// is checked arithmetic outside any `unchecked` block, so a second term
+    /// that did not belong in this half would panic rather than quietly agree
+    /// with the library.
     function testNotOverflowAdd(uint256 a, uint256 b) public pure {
-        unchecked {
-            uint256 c = a + b;
-            vm.assume(c >= a);
-        }
+        b = bound(b, 0, type(uint256).max - a);
 
         assertEq(a + b, LibSaturatingMath.saturatingAdd(a, b));
     }
 
+    /// The clamping half of `saturatingAdd`. No second term can overflow a
+    /// first term of `0`, so the half begins at `1`, and from there the second
+    /// terms that overflow are exactly `[max - a + 1, max]`.
     function testSaturateAdd(uint256 a, uint256 b) public pure {
-        unchecked {
-            uint256 c = a + b;
-            vm.assume(c < a);
-        }
+        a = bound(a, 1, type(uint256).max);
+        b = bound(b, type(uint256).max - a + 1, type(uint256).max);
+
+        // The pair overflows, stated without reference to the library.
+        assertGt(b, type(uint256).max - a);
 
         assertEq(type(uint256).max, LibSaturatingMath.saturatingAdd(a, b));
     }
 
+    /// The representable half of `saturatingSub`: the differences that fit are
+    /// exactly the subtrahends in `[0, a]`.
     function testNotUnderflowSub(uint256 a, uint256 b) public pure {
-        unchecked {
-            uint256 c = a - b;
-            vm.assume(c <= a);
-        }
+        b = bound(b, 0, a);
 
         assertEq(a - b, LibSaturatingMath.saturatingSub(a, b));
     }
 
+    /// The clamping half of `saturatingSub`. No subtrahend can underflow a
+    /// minuend of `max`, so the half ends at `max - 1`, and from there the
+    /// subtrahends that underflow are exactly `[a + 1, max]`.
     function testSaturateSub(uint256 a, uint256 b) public pure {
-        unchecked {
-            uint256 c = a - b;
-            vm.assume(c > a);
+        a = bound(a, 0, type(uint256).max - 1);
+        b = bound(b, a + 1, type(uint256).max);
 
-            assertEq(0, LibSaturatingMath.saturatingSub(a, b));
-        }
+        // The pair underflows, stated without reference to the library.
+        assertGt(b, a);
+
+        assertEq(0, LibSaturatingMath.saturatingSub(a, b));
     }
 
-    function testNotOverflowMul(uint256 a, uint256 b) public pure {
-        unchecked {
-            uint256 c = a * b;
-            vm.assume(a != 0);
-            vm.assume(c / a == b);
-        }
+    /// The representable half of `saturatingMul`. A first term of `0` has no
+    /// half to explore, since `0 * b` is `0` for every `b`, so the width starts
+    /// at one bit, and from there the second terms whose product fits are
+    /// exactly `[0, max / a]`.
+    function testNotOverflowMul(uint256 width, uint256 a, uint256 b) public pure {
+        a = magnitude(width, a, 1);
+        b = bound(b, 0, type(uint256).max / a);
 
         assertEq(a * b, LibSaturatingMath.saturatingMul(a, b));
     }
 
-    function testSaturateMul(uint256 a, uint256 b) public pure {
-        unchecked {
-            uint256 c = a * b;
-            vm.assume(a != 0);
-            vm.assume(c / a != b);
-        }
+    /// The clamping half of `saturatingMul`. A first term of `1` multiplies
+    /// nothing past the ceiling, so the width starts at two bits, and from
+    /// there the second terms that overflow are exactly `[max / a + 1, max]`.
+    function testSaturateMul(uint256 width, uint256 a, uint256 b) public pure {
+        a = magnitude(width, a, 2);
+        b = bound(b, type(uint256).max / a + 1, type(uint256).max);
+
+        // The pair overflows, stated without reference to the library.
+        assertGt(b, type(uint256).max / a);
 
         assertEq(type(uint256).max, LibSaturatingMath.saturatingMul(a, b));
     }
