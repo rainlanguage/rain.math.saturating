@@ -1,0 +1,23 @@
+[
+  {
+    "timestamp": "2026-07-25T18:58:58Z",
+    "commit": "ae8dd4d6a4b797e36bb525cd2b61dacc474fd43f",
+    "publishedTag": "v0.1.1",
+    "commitsAheadOfTag": 10,
+    "scope": "whole repo",
+    "tool": "adversarial-mutation-test",
+    "skillVersion": "0.27.0",
+    "summary": {
+      "behaviours": 60,
+      "mutants": 72,
+      "killedByExistingTests": 56,
+      "gapsFilled": 14,
+      "equivalentMutants": 2,
+      "testsBefore": 7,
+      "testsAfter": 25,
+      "candidates": 2,
+      "confirmed": 2,
+      "filed": ["#21", "#22"]
+    }
+  }
+]
