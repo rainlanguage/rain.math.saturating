@@ -12,10 +12,24 @@ pragma solidity ^0.8.18;
 /// Ideally there are no calculation mistakes, but in guarding against bugs it
 /// may be safer pragmatically to saturate arithmatic at the numeric bounds.
 /// Note that saturating div is not supported because 0/0 is undefined.
+///
+/// The ceiling that `saturatingAdd` and `saturatingMul` clamp to,
+/// `type(uint256).max`, is itself the canonical "infinite allowance" value in
+/// ERC20, which implementations following OpenZeppelin never decrement as it
+/// is spent. A saturated result is indistinguishable from one computed
+/// exactly, so nothing in it signals that the true value was out of range, and
+/// passing one to `approve` grants an unlimited allowance where unsaturated
+/// math would have reverted. Transfers are self limiting because a transfer of
+/// more than the balance reverts, but an allowance is a promise rather than a
+/// balance and nothing bounds it. Callers must bound a saturated result
+/// against something real, such as a balance or an explicit cap, before using
+/// it as an allowance.
 library LibSaturatingMath {
     /// Saturating addition.
     /// If the result of `a + b` overflows, the return value is the maximum
-    /// `uint256` value instead. This function does not revert.
+    /// `uint256` value instead. This function does not revert. That ceiling is
+    /// the ERC20 infinite allowance value; see the library notice before using
+    /// a saturated result as an allowance.
     /// @param a First term.
     /// @param b Second term.
     /// @return Minimum of (a + b) and max uint256.
@@ -40,7 +54,9 @@ library LibSaturatingMath {
 
     /// Saturating multiplication.
     /// If the result of `a * b` overflows, the return value is the maximum
-    /// `uint256` value instead. This function does not revert.
+    /// `uint256` value instead. This function does not revert. That ceiling is
+    /// the ERC20 infinite allowance value; see the library notice before using
+    /// a saturated result as an allowance.
     /// @param a First term.
     /// @param b Second term.
     /// @return Minimum of a * b and max uint256.

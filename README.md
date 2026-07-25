@@ -7,6 +7,10 @@ over a tiny rounding/calculation slip; an underflow that wraps to "infinity" can
 cause approve/transfer of more than intended. Saturating arithmetic is the
 pragmatic guard: bounded mistakes stay bounded.
 
+The ceiling is `type(uint256).max`, which is also the ERC20 infinite allowance
+value, so a saturated `add` or `mul` result must be bounded against a balance or
+an explicit cap before it is used as an allowance.
+
 Saturating `add`, `sub`, `mul` are supported. `div` is not — `0/0` is undefined.
 
 ## Install
