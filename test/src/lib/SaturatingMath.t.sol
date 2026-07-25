@@ -380,6 +380,87 @@ contract SaturatingMathTest is Test {
         }
     }
 
+    /// Operands to walk each saturation boundary along. Saturation does not
+    /// begin at a single input pair: for addition it begins along `a + b ==
+    /// 2 ** 256`, for multiplication along `a * b == 2 ** 256`, and for
+    /// subtraction along `a == b`. Sampling a handful of points on those
+    /// curves leaves the rest of each one unpinned, so they are walked across
+    /// every power of two and its immediate neighbours, plus the small
+    /// multipliers where the curves are steepest.
+    function boundaryOperands() internal pure returns (uint256[] memory xs) {
+        xs = new uint256[](32 + 255 * 3);
+        uint256 n = 0;
+        for (uint256 i = 1; i <= 32; i++) {
+            xs[n++] = i;
+        }
+        for (uint256 k = 1; k < 256; k++) {
+            uint256 p = uint256(1) << k;
+            xs[n++] = p - 1;
+            xs[n++] = p;
+            // `2 ** 255 + 1` is representable; the guard is for `k == 256`,
+            // which the loop excludes, so this is always safe.
+            xs[n++] = p + 1;
+        }
+    }
+
+    /// Either side of the largest sum that fits, walked along the whole
+    /// addition boundary.
+    function testAddSaturationBoundarySweep() external pure {
+        uint256 max = type(uint256).max;
+        uint256[] memory xs = boundaryOperands();
+        for (uint256 i = 0; i < xs.length; i++) {
+            uint256 a = xs[i];
+            if (a >= max) {
+                continue;
+            }
+            // One below the largest sum that fits: exact.
+            assertEq(LibSaturatingMath.saturatingAdd(a, max - a - 1), max - 1);
+            // The largest sum that fits: exact, and equal to the ceiling.
+            assertEq(LibSaturatingMath.saturatingAdd(a, max - a), max);
+            // The smallest sum that does not fit: clamped.
+            assertEq(LibSaturatingMath.saturatingAdd(a, max - a + 1), max);
+        }
+    }
+
+    /// Either side of the point where the difference stops being
+    /// representable, walked along the whole subtraction boundary.
+    function testSubSaturationBoundarySweep() external pure {
+        uint256 max = type(uint256).max;
+        uint256[] memory xs = boundaryOperands();
+        for (uint256 i = 0; i < xs.length; i++) {
+            uint256 a = xs[i];
+            // The smallest non zero difference.
+            assertEq(LibSaturatingMath.saturatingSub(a, a - 1), 1);
+            // Exactly zero, from the exact side.
+            assertEq(LibSaturatingMath.saturatingSub(a, a), 0);
+            // Underflow by one: clamped to the floor, not wrapped.
+            if (a < max) {
+                assertEq(LibSaturatingMath.saturatingSub(a, a + 1), 0);
+            }
+        }
+    }
+
+    /// Either side of the largest product that fits, walked along the whole
+    /// multiplication boundary. `max / a` is the largest multiplier whose
+    /// product with `a` is representable, so `max / a + 1` is the first one
+    /// that must clamp.
+    function testMulSaturationBoundarySweep() external pure {
+        uint256 max = type(uint256).max;
+        uint256[] memory xs = boundaryOperands();
+        for (uint256 i = 0; i < xs.length; i++) {
+            uint256 a = xs[i];
+            uint256 fits = max / a;
+            // Checked multiplication here, so an expectation that is itself
+            // wrong reverts rather than agreeing with a wrong implementation.
+            assertEq(LibSaturatingMath.saturatingMul(a, fits), a * fits);
+            assertEq(LibSaturatingMath.saturatingMul(fits, a), a * fits);
+            if (a > 1) {
+                assertEq(LibSaturatingMath.saturatingMul(a, fits + 1), max);
+                assertEq(LibSaturatingMath.saturatingMul(fits + 1, a), max);
+            }
+        }
+    }
+
     /// The same guarantee at the bounds themselves.
     function testNeverRevertsAtCorners() external view {
         uint256[] memory xs = corners();
