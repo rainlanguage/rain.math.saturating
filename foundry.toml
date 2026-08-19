@@ -1,7 +1,3 @@
-[package]
-name = "rain-math-saturating"
-version = "0.1.3"
-
 [profile.default]
 libs = ["dependencies"]
 
