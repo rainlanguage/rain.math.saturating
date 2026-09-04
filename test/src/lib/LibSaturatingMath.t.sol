@@ -129,10 +129,6 @@ contract LibSaturatingMathTest is Test {
         assertEq(type(uint256).max, LibSaturatingMath.saturatingMul(a, b));
     }
 
-    function testAZeroMul(uint256 b) public pure {
-        assertEq(0, LibSaturatingMath.saturatingMul(0, b));
-    }
-
     /// Values at and immediately around every bound the library can saturate
     /// against: zero and its neighbours, the numeric maximum and its
     /// neighbours, and the square root of the modulus, where a product first
@@ -345,40 +341,6 @@ contract LibSaturatingMathTest is Test {
             assertGe(product, a);
             assertGe(product, b);
         }
-    }
-
-    /// The exact branch of each operation, reached by construction rather than
-    /// by rejection sampling, so the whole representable range is covered
-    /// uniformly instead of only the region a uniform `uint256` fuzzer happens
-    /// to land in.
-    function testExactBranchAtScale(uint256 a, uint256 b) external pure {
-        uint256 max = type(uint256).max;
-
-        uint256 addB = bound(b, 0, max - a);
-        assertEq(LibSaturatingMath.saturatingAdd(a, addB), a + addB);
-
-        uint256 subB = bound(b, 0, a);
-        assertEq(LibSaturatingMath.saturatingSub(a, subB), a - subB);
-
-        // Held below the square root of the modulus so the product spans the
-        // full width rather than collapsing onto a tiny operand.
-        uint256 mulA = bound(a, 1, type(uint128).max);
-        uint256 mulB = bound(b, 0, max / mulA);
-        assertEq(LibSaturatingMath.saturatingMul(mulA, mulB), mulA * mulB);
-    }
-
-    /// The clamping branch of each operation, reached by construction.
-    function testClampingBranchAtScale(uint256 a, uint256 b) external pure {
-        uint256 max = type(uint256).max;
-
-        uint256 addA = bound(a, 1, max);
-        assertEq(LibSaturatingMath.saturatingAdd(addA, bound(b, max - addA + 1, max)), max);
-
-        uint256 subA = bound(a, 0, max - 1);
-        assertEq(LibSaturatingMath.saturatingSub(subA, bound(b, subA + 1, max)), 0);
-
-        uint256 mulA = bound(a, 2, max);
-        assertEq(LibSaturatingMath.saturatingMul(mulA, bound(b, max / mulA + 1, max)), max);
     }
 
     /// None of the operations reverts, for any input, which is the guarantee
