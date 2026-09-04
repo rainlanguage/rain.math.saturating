@@ -10,10 +10,10 @@ contract LibSaturatingMathTest is Test {
     /// Panic code solc raises for arithmetic that overflows or underflows.
     uint256 internal constant ARITHMETIC_PANIC = 0x11;
 
-    SaturatingMathHarness internal harness;
+    SaturatingMathHarness internal sHarness;
 
     function setUp() external {
-        harness = new SaturatingMathHarness();
+        sHarness = new SaturatingMathHarness();
     }
 
     /// A draw spread across magnitudes rather than across the range. A uniform
@@ -138,7 +138,7 @@ contract LibSaturatingMathTest is Test {
     /// the two decided by solc rather than by the library.
     function checkAdd(uint256 a, uint256 b) internal view {
         uint256 actual = LibSaturatingMath.saturatingAdd(a, b);
-        try harness.checkedAdd(a, b) returns (uint256 exact) {
+        try sHarness.checkedAdd(a, b) returns (uint256 exact) {
             assertEq(actual, exact, "add: representable sum must be exact");
         } catch Panic(uint256 code) {
             assertEq(code, ARITHMETIC_PANIC, "add: unexpected panic");
@@ -150,7 +150,7 @@ contract LibSaturatingMathTest is Test {
     /// representable and `0` whenever it is not.
     function checkSub(uint256 a, uint256 b) internal view {
         uint256 actual = LibSaturatingMath.saturatingSub(a, b);
-        try harness.checkedSub(a, b) returns (uint256 exact) {
+        try sHarness.checkedSub(a, b) returns (uint256 exact) {
             assertEq(actual, exact, "sub: representable difference must be exact");
         } catch Panic(uint256 code) {
             assertEq(code, ARITHMETIC_PANIC, "sub: unexpected panic");
@@ -162,7 +162,7 @@ contract LibSaturatingMathTest is Test {
     /// representable and `type(uint256).max` whenever it is not.
     function checkMul(uint256 a, uint256 b) internal view {
         uint256 actual = LibSaturatingMath.saturatingMul(a, b);
-        try harness.checkedMul(a, b) returns (uint256 exact) {
+        try sHarness.checkedMul(a, b) returns (uint256 exact) {
             assertEq(actual, exact, "mul: representable product must be exact");
         } catch Panic(uint256 code) {
             assertEq(code, ARITHMETIC_PANIC, "mul: unexpected panic");
@@ -370,7 +370,7 @@ contract LibSaturatingMathTest is Test {
         expected[2] = LibSaturatingMath.saturatingMul(a, b);
 
         for (uint256 i = 0; i < calls.length; i++) {
-            (bool success, bytes memory data) = address(harness).staticcall(calls[i]);
+            (bool success, bytes memory data) = address(sHarness).staticcall(calls[i]);
             assertTrue(success, "saturating operation reverted");
             assertEq(abi.decode(data, (uint256)), expected[i]);
         }
@@ -468,11 +468,11 @@ contract LibSaturatingMathTest is Test {
     }
 
     function checkNeverReverts(uint256 a, uint256 b) internal view {
-        (bool addOk,) = address(harness).staticcall(abi.encodeCall(SaturatingMathHarness.saturatingAdd, (a, b)));
+        (bool addOk,) = address(sHarness).staticcall(abi.encodeCall(SaturatingMathHarness.saturatingAdd, (a, b)));
         assertTrue(addOk, "add reverted");
-        (bool subOk,) = address(harness).staticcall(abi.encodeCall(SaturatingMathHarness.saturatingSub, (a, b)));
+        (bool subOk,) = address(sHarness).staticcall(abi.encodeCall(SaturatingMathHarness.saturatingSub, (a, b)));
         assertTrue(subOk, "sub reverted");
-        (bool mulOk,) = address(harness).staticcall(abi.encodeCall(SaturatingMathHarness.saturatingMul, (a, b)));
+        (bool mulOk,) = address(sHarness).staticcall(abi.encodeCall(SaturatingMathHarness.saturatingMul, (a, b)));
         assertTrue(mulOk, "mul reverted");
     }
 }
