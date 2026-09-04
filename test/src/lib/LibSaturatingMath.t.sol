@@ -383,8 +383,6 @@ contract LibSaturatingMathTest is Test {
             uint256 powerOfTwo = uint256(1) << k;
             operands[count++] = powerOfTwo - 1;
             operands[count++] = powerOfTwo;
-            // `2 ** 255 + 1` is representable; the guard is for `k == 256`,
-            // which the loop excludes, so this is always safe.
             operands[count++] = powerOfTwo + 1;
         }
         return operands;
