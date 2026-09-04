@@ -129,10 +129,9 @@ contract LibSaturatingMathTest is Test {
         assertEq(type(uint256).max, LibSaturatingMath.saturatingMul(a, b));
     }
 
-    /// Values at and immediately around every bound the library can saturate
-    /// against: zero and its neighbours, the numeric maximum and its
-    /// neighbours, and the square root of the modulus, where a product first
-    /// stops fitting in a `uint256`.
+    /// Zero, the maximum, `2 ** 128` (where a square first stops fitting) and
+    /// `2 ** 255` (where a doubling first stops fitting), each with its
+    /// immediate neighbours, plus `type(uint64).max`.
     function corners() internal pure returns (uint256[] memory) {
         uint256[] memory operands = new uint256[](15);
         operands[0] = 0;
