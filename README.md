@@ -41,13 +41,6 @@ Tasks exposed via the shell:
 
 Use the nix-pinned `forge` for all development.
 
-## Publish
-
-Tag `v<x.y.z>` on `main`. The
-[`Publish to Soldeer`](.github/workflows/publish-soldeer.yaml) wrapper delegates
-to rainix's reusable workflow, which derives the package name from the repo name
-(`rain.math.saturating` → `rain-math-saturating`).
-
 ## License
 
 DecentraLicense 1.0 (DCL-1.0) — full text in
