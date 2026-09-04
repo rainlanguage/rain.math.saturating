@@ -1,0 +1,25 @@
+{
+  "auditedAt": "2026-09-04T06:16:20Z",
+  "auditedCommit": "50971aa7c12aea556c809a772c4bd557868c4376",
+  "files": [
+    ".github/workflows/package-release.yaml",
+    ".github/workflows/rainix.yaml",
+    ".gas-snapshot",
+    ".gitignore",
+    ".soldeerignore",
+    "README.md",
+    "REUSE.toml",
+    "audit/mutation-test-scans.json",
+    "flake.lock",
+    "flake.nix",
+    "foundry.lock",
+    "foundry.toml",
+    "remappings.txt",
+    "slither.config.json",
+    "soldeer.lock",
+    "src/lib/LibSaturatingMath.sol",
+    "test/src/lib/SaturatingMath.t.sol",
+    "test/src/lib/SaturatingMathHarness.sol"
+  ],
+  "countsByLanguage": { "solidity": 3, "rust": 0, "typescript": 0, "svelte": 0 }
+}
