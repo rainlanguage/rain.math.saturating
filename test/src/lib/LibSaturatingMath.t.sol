@@ -350,21 +350,7 @@ contract LibSaturatingMathTest is Test {
     /// revert is a failed call rather than an aborted test, and the value
     /// returned there is checked to match the internal call.
     function testNeverReverts(uint256 a, uint256 b) external view {
-        bytes[] memory calls = new bytes[](3);
-        calls[0] = abi.encodeCall(SaturatingMathHarness.saturatingAdd, (a, b));
-        calls[1] = abi.encodeCall(SaturatingMathHarness.saturatingSub, (a, b));
-        calls[2] = abi.encodeCall(SaturatingMathHarness.saturatingMul, (a, b));
-
-        uint256[] memory expected = new uint256[](3);
-        expected[0] = LibSaturatingMath.saturatingAdd(a, b);
-        expected[1] = LibSaturatingMath.saturatingSub(a, b);
-        expected[2] = LibSaturatingMath.saturatingMul(a, b);
-
-        for (uint256 i = 0; i < calls.length; i++) {
-            (bool success, bytes memory data) = address(sHarness).staticcall(calls[i]);
-            assertTrue(success, "saturating operation reverted");
-            assertEq(abi.decode(data, (uint256)), expected[i]);
-        }
+        checkNeverReverts(a, b);
     }
 
     /// Operands to walk each saturation boundary along. Saturation does not
@@ -459,11 +445,20 @@ contract LibSaturatingMathTest is Test {
     }
 
     function checkNeverReverts(uint256 a, uint256 b) internal view {
-        (bool addOk,) = address(sHarness).staticcall(abi.encodeCall(SaturatingMathHarness.saturatingAdd, (a, b)));
-        assertTrue(addOk, "add reverted");
-        (bool subOk,) = address(sHarness).staticcall(abi.encodeCall(SaturatingMathHarness.saturatingSub, (a, b)));
-        assertTrue(subOk, "sub reverted");
-        (bool mulOk,) = address(sHarness).staticcall(abi.encodeCall(SaturatingMathHarness.saturatingMul, (a, b)));
-        assertTrue(mulOk, "mul reverted");
+        bytes[] memory calls = new bytes[](3);
+        calls[0] = abi.encodeCall(SaturatingMathHarness.saturatingAdd, (a, b));
+        calls[1] = abi.encodeCall(SaturatingMathHarness.saturatingSub, (a, b));
+        calls[2] = abi.encodeCall(SaturatingMathHarness.saturatingMul, (a, b));
+
+        uint256[] memory expected = new uint256[](3);
+        expected[0] = LibSaturatingMath.saturatingAdd(a, b);
+        expected[1] = LibSaturatingMath.saturatingSub(a, b);
+        expected[2] = LibSaturatingMath.saturatingMul(a, b);
+
+        for (uint256 i = 0; i < calls.length; i++) {
+            (bool success, bytes memory data) = address(sHarness).staticcall(calls[i]);
+            assertTrue(success, "saturating operation reverted");
+            assertEq(abi.decode(data, (uint256)), expected[i]);
+        }
     }
 }
