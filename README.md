@@ -33,12 +33,6 @@ forge soldeer install # install deps declared in foundry.toml
 forge test
 ```
 
-Tasks exposed via the shell:
-
-- `rainix-sol-test` — `forge test`
-- `rainix-sol-static` — slither
-- `rainix-sol-legal` — `reuse lint`
-
 Use the nix-pinned `forge` for all development.
 
 ## License
@@ -48,12 +42,7 @@ DecentraLicense 1.0 (DCL-1.0) — full text in
 ([opensource.org](https://opensource.org/license/cal-1-0)) plus user-data
 disclosure obligations consistent with permissionless-blockchain assumptions.
 
-This repo is [REUSE 3.2](https://reuse.software/spec-3.2/) compliant. Verify
-locally:
-
-```sh
-nix develop -c rainix-sol-legal
-```
+This repo is [REUSE 3.2](https://reuse.software/spec-3.2/) compliant.
 
 ## Contributions
 
