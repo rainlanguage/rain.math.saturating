@@ -353,7 +353,7 @@ contract LibSaturatingMathTest is Test {
     /// Operands to walk each saturation boundary along. Saturation does not
     /// begin at a single input pair: for addition it begins along `a + b ==
     /// 2 ** 256`, for multiplication along `a * b == 2 ** 256`, and for
-    /// subtraction along `a == b`. Sampling a handful of points on those
+    /// subtraction along `b == a + 1`. Sampling a handful of points on those
     /// curves leaves the rest of each one unpinned, so they are walked across
     /// every power of two and its immediate neighbours, plus the small
     /// multipliers where the curves are steepest.
