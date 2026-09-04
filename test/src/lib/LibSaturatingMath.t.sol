@@ -4,9 +4,9 @@ pragma solidity =0.8.25;
 
 import {Test} from "forge-std-1.16.1/src/Test.sol";
 import {LibSaturatingMath} from "../../../src/lib/LibSaturatingMath.sol";
-import {SaturatingMathHarness} from "./SaturatingMathHarness.sol";
+import {SaturatingMathHarness} from "../../concrete/SaturatingMathHarness.sol";
 
-contract SaturatingMathTest is Test {
+contract LibSaturatingMathTest is Test {
     /// Panic code solc raises for arithmetic that overflows or underflows.
     uint256 internal constant ARITHMETIC_PANIC = 0x11;
 
