@@ -62,9 +62,7 @@ library LibSaturatingMath {
     /// @return Minimum of a * b and max uint256.
     function saturatingMul(uint256 a, uint256 b) internal pure returns (uint256) {
         unchecked {
-            // Gas optimization: this is cheaper than requiring 'a' not being
-            // zero, but the benefit is lost if 'b' is also tested.
-            // https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+            // `c / a` below panics on division by zero even in `unchecked`.
             if (a == 0) return 0;
             uint256 c = a * b;
             return c / a != b ? type(uint256).max : c;
