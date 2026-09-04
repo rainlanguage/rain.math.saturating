@@ -395,9 +395,6 @@ contract LibSaturatingMathTest is Test {
         uint256[] memory operands = boundaryOperands();
         for (uint256 i = 0; i < operands.length; i++) {
             uint256 a = operands[i];
-            if (a >= max) {
-                continue;
-            }
             // One below the largest sum that fits: exact.
             assertEq(LibSaturatingMath.saturatingAdd(a, max - a - 1), max - 1);
             // The largest sum that fits: exact, and equal to the ceiling.
@@ -410,7 +407,6 @@ contract LibSaturatingMathTest is Test {
     /// Either side of the point where the difference stops being
     /// representable, walked along the whole subtraction boundary.
     function testSubSaturationBoundarySweep() external pure {
-        uint256 max = type(uint256).max;
         uint256[] memory operands = boundaryOperands();
         for (uint256 i = 0; i < operands.length; i++) {
             uint256 a = operands[i];
@@ -419,9 +415,7 @@ contract LibSaturatingMathTest is Test {
             // Exactly zero, from the exact side.
             assertEq(LibSaturatingMath.saturatingSub(a, a), 0);
             // Underflow by one: clamped to the floor, not wrapped.
-            if (a < max) {
-                assertEq(LibSaturatingMath.saturatingSub(a, a + 1), 0);
-            }
+            assertEq(LibSaturatingMath.saturatingSub(a, a + 1), 0);
         }
     }
 
