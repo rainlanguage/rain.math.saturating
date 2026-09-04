@@ -10,7 +10,7 @@ pragma solidity ^0.8.18;
 /// assets underflowing and attempting to approve/transfer "infinity" when we
 /// wanted "almost or exactly zero" but some calculation bug underflowed zero.
 /// Ideally there are no calculation mistakes, but in guarding against bugs it
-/// may be safer pragmatically to saturate arithmatic at the numeric bounds.
+/// may be safer pragmatically to saturate arithmetic at the numeric bounds.
 /// Note that saturating div is not supported because 0/0 is undefined.
 ///
 /// The ceiling that `saturatingAdd` and `saturatingMul` clamp to,
