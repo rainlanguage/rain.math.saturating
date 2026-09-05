@@ -1,8 +1,6 @@
 # rain.math.saturating
 
-Math operations that clamp at the numeric bounds rather than error or wrap. The
-contract, including the ERC20 allowance caveat at the ceiling, is the NatSpec on
-[`LibSaturatingMath`](src/lib/LibSaturatingMath.sol).
+Math operations that clamp at the numeric bounds rather than error or wrap.
 
 ## Install
 
