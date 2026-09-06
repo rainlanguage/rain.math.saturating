@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-import {LibSaturatingMath} from "src/lib/LibSaturatingMath.sol";
+import {LibSaturatingMath} from "../../../src/lib/LibSaturatingMath.sol";
 
 /// @title SaturatingMathHarness
 /// @notice External surface used as an oracle for `LibSaturatingMath`.
