@@ -2,7 +2,6 @@
 .git
 .github
 .gitignore
-.gitmodules
 .pre-commit-config.yaml
 .soldeerignore
 .vscode
@@ -13,12 +12,9 @@
 /docs
 /flake.lock
 /flake.nix
-/foundry.lock
 /foundry.toml
-/lib
 /out
 /remappings.txt
 /slither.config.json
 /soldeer.lock
-/target
 /test
