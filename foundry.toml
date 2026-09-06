@@ -14,7 +14,7 @@ evm_version = "cancun"
 fuzz.runs = 1024
 
 [dependencies]
-forge-std = "1.16.1"
+forge-std = "1.16.2"
 
 [soldeer]
 recursive_deps = false
