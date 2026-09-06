@@ -328,8 +328,9 @@ contract LibSaturatingMathTest is Test {
         assertGe(LibSaturatingMath.saturatingSub(a, lo), LibSaturatingMath.saturatingSub(a, hi));
     }
 
-    /// Adding never loses ground and subtracting never gains any, so a clamp
-    /// can only ever move a result toward the bound it is clamping at.
+    /// Adding never loses ground, subtracting never gains any, and a product
+    /// of non zero terms is at least each term, so a clamp can only ever move
+    /// a result toward the bound it is clamping at.
     function testDirectionOfSaturation(uint256 a, uint256 b) external pure {
         uint256 sum = LibSaturatingMath.saturatingAdd(a, b);
         assertGe(sum, a);
