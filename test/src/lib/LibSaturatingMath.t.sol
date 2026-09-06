@@ -26,14 +26,14 @@ contract LibSaturatingMathTest is Test {
     /// saturation boundary is sharpest — stay reachable from the values a
     /// fuzzer proposes most.
     /// @param width Selects the bit width, from `minBits` to 256.
-    /// @param x Selects the value within that width.
+    /// @param seed Selects the value within that width.
     /// @param minBits Narrowest bit width to select, at least 1.
     /// @return A value of exactly the selected bit width.
-    function magnitude(uint256 width, uint256 x, uint256 minBits) internal pure returns (uint256) {
+    function magnitude(uint256 width, uint256 seed, uint256 minBits) internal pure returns (uint256) {
         uint256 bits = bound(width, minBits, 256);
         uint256 lo = uint256(1) << (bits - 1);
         uint256 hi = bits == 256 ? type(uint256).max : (uint256(1) << bits) - 1;
-        return bound(x, lo, hi);
+        return bound(seed, lo, hi);
     }
 
     /// The representable half of `saturatingAdd`. For any first term the sums
@@ -114,23 +114,24 @@ contract LibSaturatingMathTest is Test {
     /// against: zero and its neighbours, the numeric maximum and its
     /// neighbours, and the square root of the modulus, where a product first
     /// stops fitting in a `uint256`.
-    function corners() internal pure returns (uint256[] memory xs) {
-        xs = new uint256[](15);
-        xs[0] = 0;
-        xs[1] = 1;
-        xs[2] = 2;
-        xs[3] = 3;
-        xs[4] = type(uint64).max;
-        xs[5] = uint256(type(uint128).max) - 1;
-        xs[6] = type(uint128).max;
-        xs[7] = uint256(type(uint128).max) + 1;
-        xs[8] = uint256(type(uint128).max) + 2;
-        xs[9] = (uint256(1) << 255) - 1;
-        xs[10] = uint256(1) << 255;
-        xs[11] = (uint256(1) << 255) + 1;
-        xs[12] = type(uint256).max - 2;
-        xs[13] = type(uint256).max - 1;
-        xs[14] = type(uint256).max;
+    function corners() internal pure returns (uint256[] memory) {
+        uint256[] memory operands = new uint256[](15);
+        operands[0] = 0;
+        operands[1] = 1;
+        operands[2] = 2;
+        operands[3] = 3;
+        operands[4] = type(uint64).max;
+        operands[5] = uint256(type(uint128).max) - 1;
+        operands[6] = type(uint128).max;
+        operands[7] = uint256(type(uint128).max) + 1;
+        operands[8] = uint256(type(uint128).max) + 2;
+        operands[9] = (uint256(1) << 255) - 1;
+        operands[10] = uint256(1) << 255;
+        operands[11] = (uint256(1) << 255) + 1;
+        operands[12] = type(uint256).max - 2;
+        operands[13] = type(uint256).max - 1;
+        operands[14] = type(uint256).max;
+        return operands;
     }
 
     function checkAgainstChecked(
@@ -187,12 +188,12 @@ contract LibSaturatingMathTest is Test {
     /// Every pair drawn from the bounds and their neighbours, which uniform
     /// fuzzing over `uint256` reaches only by chance.
     function testCornerPairs() external view {
-        uint256[] memory xs = corners();
-        for (uint256 i = 0; i < xs.length; i++) {
-            for (uint256 j = 0; j < xs.length; j++) {
-                checkAdd(xs[i], xs[j]);
-                checkSub(xs[i], xs[j]);
-                checkMul(xs[i], xs[j]);
+        uint256[] memory operands = corners();
+        for (uint256 i = 0; i < operands.length; i++) {
+            for (uint256 j = 0; j < operands.length; j++) {
+                checkAdd(operands[i], operands[j]);
+                checkSub(operands[i], operands[j]);
+                checkMul(operands[i], operands[j]);
             }
         }
     }
@@ -372,29 +373,30 @@ contract LibSaturatingMathTest is Test {
     /// curves leaves the rest of each one unpinned, so they are walked across
     /// every power of two and its immediate neighbours, plus the small
     /// multipliers where the curves are steepest.
-    function boundaryOperands() internal pure returns (uint256[] memory xs) {
-        xs = new uint256[](32 + 255 * 3);
-        uint256 n = 0;
+    function boundaryOperands() internal pure returns (uint256[] memory) {
+        uint256[] memory operands = new uint256[](32 + 255 * 3);
+        uint256 count = 0;
         for (uint256 i = 1; i <= 32; i++) {
-            xs[n++] = i;
+            operands[count++] = i;
         }
         for (uint256 k = 1; k < 256; k++) {
-            uint256 p = uint256(1) << k;
-            xs[n++] = p - 1;
-            xs[n++] = p;
+            uint256 powerOfTwo = uint256(1) << k;
+            operands[count++] = powerOfTwo - 1;
+            operands[count++] = powerOfTwo;
             // `2 ** 255 + 1` is representable; the guard is for `k == 256`,
             // which the loop excludes, so this is always safe.
-            xs[n++] = p + 1;
+            operands[count++] = powerOfTwo + 1;
         }
+        return operands;
     }
 
     /// Either side of the largest sum that fits, walked along the whole
     /// addition boundary.
     function testAddSaturationBoundarySweep() external pure {
         uint256 max = type(uint256).max;
-        uint256[] memory xs = boundaryOperands();
-        for (uint256 i = 0; i < xs.length; i++) {
-            uint256 a = xs[i];
+        uint256[] memory operands = boundaryOperands();
+        for (uint256 i = 0; i < operands.length; i++) {
+            uint256 a = operands[i];
             if (a >= max) {
                 continue;
             }
@@ -411,9 +413,9 @@ contract LibSaturatingMathTest is Test {
     /// representable, walked along the whole subtraction boundary.
     function testSubSaturationBoundarySweep() external pure {
         uint256 max = type(uint256).max;
-        uint256[] memory xs = boundaryOperands();
-        for (uint256 i = 0; i < xs.length; i++) {
-            uint256 a = xs[i];
+        uint256[] memory operands = boundaryOperands();
+        for (uint256 i = 0; i < operands.length; i++) {
+            uint256 a = operands[i];
             // The smallest non zero difference.
             assertEq(LibSaturatingMath.saturatingSub(a, a - 1), 1);
             // Exactly zero, from the exact side.
@@ -431,9 +433,9 @@ contract LibSaturatingMathTest is Test {
     /// that must clamp.
     function testMulSaturationBoundarySweep() external pure {
         uint256 max = type(uint256).max;
-        uint256[] memory xs = boundaryOperands();
-        for (uint256 i = 0; i < xs.length; i++) {
-            uint256 a = xs[i];
+        uint256[] memory operands = boundaryOperands();
+        for (uint256 i = 0; i < operands.length; i++) {
+            uint256 a = operands[i];
             uint256 fits = max / a;
             // Checked multiplication here, so an expectation that is itself
             // wrong reverts rather than agreeing with a wrong implementation.
@@ -448,10 +450,10 @@ contract LibSaturatingMathTest is Test {
 
     /// The same guarantee at the bounds themselves.
     function testNeverRevertsAtCorners() external view {
-        uint256[] memory xs = corners();
-        for (uint256 i = 0; i < xs.length; i++) {
-            for (uint256 j = 0; j < xs.length; j++) {
-                checkNeverReverts(xs[i], xs[j]);
+        uint256[] memory operands = corners();
+        for (uint256 i = 0; i < operands.length; i++) {
+            for (uint256 j = 0; j < operands.length; j++) {
+                checkNeverReverts(operands[i], operands[j]);
             }
         }
     }
