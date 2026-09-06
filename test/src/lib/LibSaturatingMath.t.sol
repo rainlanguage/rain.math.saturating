@@ -36,6 +36,29 @@ contract LibSaturatingMathTest is Test {
         return bound(seed, lo, hi);
     }
 
+    /// `magnitude` returns a value of exactly the width `bound` selects, for
+    /// every selectable width.
+    function testMagnitudeBitWidth(uint256 width, uint256 seed, uint256 minBits) external pure {
+        minBits = bound(minBits, 1, 256);
+        uint256 selected = bound(width, minBits, 256);
+        uint256 value = magnitude(width, seed, minBits);
+
+        uint256 bits = 0;
+        for (uint256 rest = value; rest > 0; rest >>= 1) {
+            bits++;
+        }
+        assertEq(bits, selected, "value is not of the selected bit width");
+    }
+
+    /// The narrowest and widest widths are selectable and fill their ranges.
+    function testMagnitudeExtremes() external pure {
+        assertEq(magnitude(1, 0, 1), 1);
+        assertEq(magnitude(2, 0, 2), 2);
+        assertEq(magnitude(2, type(uint256).max, 2), 3);
+        assertEq(magnitude(256, 0, 1), uint256(1) << 255);
+        assertEq(magnitude(256, type(uint256).max, 1), type(uint256).max);
+    }
+
     /// The representable half of `saturatingAdd`. For any first term the sums
     /// that fit are exactly the second terms in `[0, max - a]`, so every draw
     /// lands in the half by construction and none is discarded. The expectation
