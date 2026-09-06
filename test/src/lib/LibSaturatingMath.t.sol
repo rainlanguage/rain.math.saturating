@@ -343,6 +343,24 @@ contract LibSaturatingMathTest is Test {
         }
     }
 
+    /// The exact branch of multiplication with the first term drawn uniformly
+    /// below the square root of the modulus, weighting the region differently
+    /// from the per-width draw in `testNotOverflowMul`.
+    function testNotOverflowMulBelowSqrtModulus(uint256 a, uint256 b) external pure {
+        uint256 mulA = bound(a, 1, type(uint128).max);
+        uint256 mulB = bound(b, 0, type(uint256).max / mulA);
+        assertEq(LibSaturatingMath.saturatingMul(mulA, mulB), mulA * mulB);
+    }
+
+    /// The clamping branch of multiplication with the first term drawn
+    /// uniformly over the whole range, weighting the region differently from
+    /// the per-width draw in `testSaturateMul`.
+    function testSaturateMulUniform(uint256 a, uint256 b) external pure {
+        uint256 max = type(uint256).max;
+        uint256 mulA = bound(a, 2, max);
+        assertEq(LibSaturatingMath.saturatingMul(mulA, bound(b, max / mulA + 1, max)), max);
+    }
+
     /// None of the operations reverts, for any input, which is the guarantee
     /// the library exists to provide. Observed across a call boundary so a
     /// revert is a failed call rather than an aborted test, and the value
