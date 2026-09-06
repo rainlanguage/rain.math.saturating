@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: Copyright (c) 2020 Rain Open Source Software Ltd
 pragma solidity =0.8.25;
 
-import {Test} from "forge-std-1.16.1/src/Test.sol";
+import {Test, stdError} from "forge-std-1.16.1/src/Test.sol";
 import {LibSaturatingMath} from "../../../src/lib/LibSaturatingMath.sol";
 import {SaturatingMathHarness} from "../../concrete/SaturatingMathHarness.sol";
 
@@ -159,6 +159,18 @@ contract LibSaturatingMathTest is Test {
 
     function checkMul(uint256 a, uint256 b) internal view {
         checkAgainstChecked(LibSaturatingMath.saturatingMul(a, b), sHarness.checkedMul, a, b, type(uint256).max, "mul");
+    }
+
+    /// The harness is an oracle only while solc, not the library, decides the
+    /// boundary: each checked operation must panic one step past it.
+    function testOraclePanicsPastBoundary() external {
+        uint256 max = type(uint256).max;
+        vm.expectRevert(stdError.arithmeticError);
+        sHarness.checkedAdd(max, 1);
+        vm.expectRevert(stdError.arithmeticError);
+        sHarness.checkedSub(0, 1);
+        vm.expectRevert(stdError.arithmeticError);
+        sHarness.checkedMul(uint256(1) << 128, uint256(1) << 128);
     }
 
     /// Saturation agrees with solc's own arithmetic across the whole input
