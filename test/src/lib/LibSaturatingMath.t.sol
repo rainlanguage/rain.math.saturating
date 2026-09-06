@@ -133,41 +133,32 @@ contract LibSaturatingMathTest is Test {
         xs[14] = type(uint256).max;
     }
 
-    /// `saturatingAdd` returns the exact sum whenever the sum is representable
-    /// and `type(uint256).max` whenever it is not, with the boundary between
-    /// the two decided by solc rather than by the library.
+    function checkAgainstChecked(
+        uint256 actual,
+        function(uint256, uint256) external pure returns (uint256) checked,
+        uint256 a,
+        uint256 b,
+        uint256 clamp,
+        string memory label
+    ) internal pure {
+        try checked(a, b) returns (uint256 exact) {
+            assertEq(actual, exact, string.concat(label, ": representable result must be exact"));
+        } catch Panic(uint256 code) {
+            assertEq(code, ARITHMETIC_PANIC, string.concat(label, ": unexpected panic"));
+            assertEq(actual, clamp, string.concat(label, ": unrepresentable result must clamp"));
+        }
+    }
+
     function checkAdd(uint256 a, uint256 b) internal view {
-        uint256 actual = LibSaturatingMath.saturatingAdd(a, b);
-        try sHarness.checkedAdd(a, b) returns (uint256 exact) {
-            assertEq(actual, exact, "add: representable sum must be exact");
-        } catch Panic(uint256 code) {
-            assertEq(code, ARITHMETIC_PANIC, "add: unexpected panic");
-            assertEq(actual, type(uint256).max, "add: unrepresentable sum must clamp to max");
-        }
+        checkAgainstChecked(LibSaturatingMath.saturatingAdd(a, b), sHarness.checkedAdd, a, b, type(uint256).max, "add");
     }
 
-    /// `saturatingSub` returns the exact difference whenever the difference is
-    /// representable and `0` whenever it is not.
     function checkSub(uint256 a, uint256 b) internal view {
-        uint256 actual = LibSaturatingMath.saturatingSub(a, b);
-        try sHarness.checkedSub(a, b) returns (uint256 exact) {
-            assertEq(actual, exact, "sub: representable difference must be exact");
-        } catch Panic(uint256 code) {
-            assertEq(code, ARITHMETIC_PANIC, "sub: unexpected panic");
-            assertEq(actual, 0, "sub: unrepresentable difference must clamp to zero");
-        }
+        checkAgainstChecked(LibSaturatingMath.saturatingSub(a, b), sHarness.checkedSub, a, b, 0, "sub");
     }
 
-    /// `saturatingMul` returns the exact product whenever the product is
-    /// representable and `type(uint256).max` whenever it is not.
     function checkMul(uint256 a, uint256 b) internal view {
-        uint256 actual = LibSaturatingMath.saturatingMul(a, b);
-        try sHarness.checkedMul(a, b) returns (uint256 exact) {
-            assertEq(actual, exact, "mul: representable product must be exact");
-        } catch Panic(uint256 code) {
-            assertEq(code, ARITHMETIC_PANIC, "mul: unexpected panic");
-            assertEq(actual, type(uint256).max, "mul: unrepresentable product must clamp to max");
-        }
+        checkAgainstChecked(LibSaturatingMath.saturatingMul(a, b), sHarness.checkedMul, a, b, type(uint256).max, "mul");
     }
 
     /// Saturation agrees with solc's own arithmetic across the whole input
