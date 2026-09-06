@@ -260,9 +260,9 @@ contract LibSaturatingMathTest is Test {
         assertEq(LibSaturatingMath.saturatingSub(0, max), 0);
     }
 
-    /// Products stated directly. `2 * (2 ** 255 - 1)` is the largest product
-    /// that still fits and `2 * 2 ** 255` the smallest that does not, so the
-    /// two sides of the saturation boundary are pinned one apart.
+    /// Products stated directly. `2 * (2 ** 255 - 1)` is the largest even
+    /// product that still fits and `2 * 2 ** 255` the smallest that does not,
+    /// so the two sides of the saturation boundary are pinned one apart.
     function testMulEdgeValues() external pure {
         uint256 max = type(uint256).max;
         assertEq(LibSaturatingMath.saturatingMul(0, 0), 0);
