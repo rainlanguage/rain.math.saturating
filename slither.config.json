@@ -1,4 +1,3 @@
 {
-    "detectors_to_exclude": "assembly-usage,solc-version",
-    "filter_paths": "lib/forge-std,test"
+    "detectors_to_exclude": "assembly-usage,solc-version"
 }
